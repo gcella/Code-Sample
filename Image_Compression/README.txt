@@ -1,3 +1,8 @@
+currently: cannot connect to appropriate libraries to compile given what files
+are available
+
+
+
 README
 Homework 4
 by Gabrielle Cella and Ann Bellinger (pair programming project)
