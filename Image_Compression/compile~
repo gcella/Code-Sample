@@ -14,13 +14,10 @@ esac
 CIIFLAGS=`pkg-config --cflags cii40`
 CIILIBS=`pkg-config --libs cii40`
 
-CFLAGS="$CIIFLAGS"
-LIBS="$CIILIBS -l40locality -lnetpbm -lm -larith40"
-LFLAGS="-L/comp/40/lib64" 
 # compile and link against course software and netpbm library
-#CFLAGS="-I. -I/comp/40/include $CIIFLAGS"
-#LIBS="$CIILIBS -l40locality -lnetpbm -lm -larith40"
-#LFLAGS="-L/comp/40/lib64"
+CFLAGS="-I. -I/comp/40/include $CIIFLAGS"
+LIBS="$CIILIBS -l40locality -lnetpbm -lm -larith40"
+LFLAGS="-L/comp/40/lib64"
 
 # these flags max out warnings and debug info
 FLAGS="-g -O0 -Wall -Wextra -Werror -Wfatal-errors -std=c99 -pedantic"
