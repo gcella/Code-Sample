@@ -1,42 +1,59 @@
-#ifndef	DICT_H
-#define	DICT_H
+// dictionary.h defines the structure for the object Dictionary.
+// A Dictionary is a type of Trie that stores words, which gives users the
+// option to insert words, check to see if a word is in the dictionary, and
+// check to see if a prefix is in a word in the dictionary.
+//
+// Created by: Gabrielle Cella
+// Created on: 3/26/13
+// Last modified: 4/2/13
 
-/*
- * Dictionary interface
- *     purpose: store words
- *   functions: see public functions
- *        uses: Node class to build the trie
- */
+#ifndef DICT_H
+#define DICT_H
 
-#include	<iostream>
+#include <string>
+#include <cctype>
+#include "trienode.h"
 using namespace std;
 
-#define	N_LETTS	26
-
-class Node
-{
-	public:
-		Node();					// constructor
-		Node* get_link(int pos);		// get link for pos 
-		bool  set_link(int pos,Node* p);	// set link for pos
-		bool  get_is_word();			// is node endOfWord?
-		void  set_is_word(bool);		// set endOfWord val
-	private:
-		Node *links[N_LETTS];
-		bool is_word;
-};
-		
 class Dictionary
 {
-	public:
-		Dictionary();			// create/init one
-		~Dictionary();			// create/init one
-		bool insert(string);		// rets: false if fails
-		bool isPrefix(string);		// 
-		bool isWord(string);
+public:
 
-	private:
-		Node *root;
+    //default constructor
+    Dictionary();
+
+    //insert a string into the dictionary
+    bool insert(string s);
+
+    //test a string to see if it is a word in the dictionary
+    bool isWord(string s);
+
+    //test a string to see if it is a prefix in the dictionary
+    bool isPrefix(string s);
+
+private:
+
+    TrieNode* root;
+
+    /*FUNCTIONS*/
+
+    //insert function that uses recursion to put a string in the trie
+    bool putInTree(TrieNode* r, string s);
+
+    //returns false if there are alphabetical characters somewhere in the strng
+    bool noAlpha(string s);
+
+    //boolean function that returns true if it can scale to the end of a string
+    //in a trie
+    bool scaleToEnd(TrieNode* r, string s);
+
+    //boolean function that returns true if it can scale to the end of a string
+    //in a trie and that word is considered a word
+    bool wordAtEnd(TrieNode* r, string s);
+
+    //converts a char to its corresponding integer value (e.g. a to 0, b to 1)
+    int charToInt(char c);
 };
+
 
 #endif

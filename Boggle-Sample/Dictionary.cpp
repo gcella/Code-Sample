@@ -1,181 +1,165 @@
-/*
- * Dictionary.cpp 
- *
- *   Implementation of the dictionary class.
- *
- *   version 2013-04-22 fixed bug with isWord on empty trie (10q MB+SC)
- *   version 2013-04-02
- */
+// dictionary.cpp contains the definitions for the functions declared in
+// dictionary.h. This class defines the type Dictionary, which is a Trie that
+// stores words.
+// Users have the option to store words in the dictionary, check to see if 
+// a word is in the dictoinary, and check to see a prefix can be found in a
+// word in the dictionary.
+//
+// Created by: Gabrielle Cella
+// Created on: 3/26/13
+// Last modified: 4/2/13
 
-#include <iostream>
+#include <string>
 #include <cctype>
 #include "Dictionary.h"
 using namespace std;
 
-// ------------------------------ Node Functions -----------------------
-
-Node::Node()
-{
-	for(int i=0; i<N_LETTS; i++)
-		links[i] = NULL;
-	is_word = false;
-}
-
-Node* Node::get_link(int pos)
-{
-	if ( pos >= 0 && pos <N_LETTS )
-		return links[pos];
-	return NULL;
-}
-bool Node::set_link(int pos, Node* p)
-{
-	if ( pos >= 0 && pos <N_LETTS ){
-		links[pos] = p;
-		return true;
-	}
-	return false;
-}
-bool Node::get_is_word()
-{
-	return is_word;
-}
-void Node::set_is_word(bool val)
-{
-	is_word = val;
-}
-
-// ------------------------------ Dict Functions -----------------------
-
-static int char_to_int(char);		// a declaration
-
-//
-// An empty Dictionary has no root node, just a NULL ptr
-//
+//default constructor
 Dictionary::Dictionary()
 {
-	root = NULL;
+    root = NULL;
 }
 
-static void del_tree(Node*);
-//
-// destructor for a dictionary
-//  recursively delete all nodes 
-//
-Dictionary::~Dictionary()
-{
-	del_tree(root);
-}
-
-// the actual destructor
-// this is not a class function, it is just a private helper thing
-// note: 'static' makes a function private to the source file
-// 
-static void del_tree(Node* r)
-{
-	if ( r != NULL )
-	{
-		for (int i = 0; i<N_LETTS; i++)
-			del_tree( r->get_link(i) );
-		delete r;
-	}
-}
-//
-// insert a string in the trie 
-//   args: string
-//   rets: true if did it, false if no mem
-//   uses: isalpha, to_lower to map chars
-//
+//public insertion function
+//arguments: string
+//returns: bool -- did the insertion work correctly
+//calls private func putInTree(). These functions must be separated because 
+//putInTree() takes in TrieNode as a parameter and is initially passed the root
 bool Dictionary::insert(string s)
 {
-	Node	*iter     = root;
-	Node	*next;
-	int	next_level;
+    if(root == NULL)		//being tree
+	root = new TrieNode;
 
-	if ( root == NULL ){				// empty tree?
-		root = new Node;			// y: make node
-		if ( root == NULL )			// no mem?
-			return false;				// y: get out
-		iter = root;				// start at root
-	}
-	// traverse the tree iteratively. Use chars in s to chose the path
-	int slen = s.length();
-	for( int pos = 0 ; pos < slen ; pos++ )
-	{
-		if ( !isalpha(s[pos]) )			// skip non-alphas
-			continue;
-		next_level = char_to_int(s[pos]);	// get array index 
-		next = iter->get_link(next_level);	// from that get ptr
-		if ( next == NULL ){			// if no node
-			next = new Node;		// make one
-			if ( next == NULL )		// no mem?
-				return false;			// y: scram
-			iter->set_link(next_level, next);	// n: store 
-		}
-		iter = next;				// advance level
-	}
-	iter->set_is_word(true);			// at end. mark word
-	return true;					// it worked!
+    return putInTree(root, s);
 }
 
-//
-// tree_walk:
-//   args: root of tree to walk, string to use as path
-//   rets: ptr to Node we got to, or NULL if hit a wall
-//   does: walk the tree using the chars as steps
-//
-static Node *tree_walk(Node*r, string s)
+//private insert function
+//arguments: TrieNode* r, string s
+//returns: bool -- did the insertion work correctly
+//recursive function
+bool Dictionary::putInTree(TrieNode* r, string s)
 {
-	int	slen;
-	int	pos;
-	Node	*iter = r;
+    if(r == NULL)		//if we run out of room, new returns NULL
+	return false;		//and we're given NULL to work with.
 
-	if ( iter != NULL ){
-		slen = s.length();
-		for( pos = 0 ; pos < slen ; pos++ )
-		{
-			if ( isalpha(s[pos]) )
-			{
-				iter = iter->get_link( char_to_int(s[pos]) );
-				if ( iter == NULL )
-					return NULL;
-			}
-		}
-	}
-	return iter;
+    int len = s.length();
+
+    if(noAlpha(s)){		//done or empty string is inserted
+	r->set_isWord(true);
+	return true;
+    }
+
+    int i = 0;
+    while(i< len && !isalpha(s[i]))	//scale to first real letter
+	i++;
+
+    char current = tolower(s[i]);	//because capitals (store first letter)
+    string truncated = s.erase(0, i+1);		//truncate stored letter
+						//and non-letters before it
+
+    if(r->pointToChild(charToInt(current)) == NULL)
+	r->makeNodeAt(charToInt(current));		//make node at letter
+    return putInTree(r->pointToChild(charToInt(current)), truncated);
 }
 
-//
-// isWord(s)
-//   return true if s is in dictionary
-//
-bool Dictionary::isWord(string s)
+//private boolean function--are there no alphabetical characters in a string?
+//arguments: string s
+//returns: bool
+bool Dictionary::noAlpha(string s)
 {
-	Node	*end = tree_walk(root, s);
+    int len = s.length();
+    int i = 0;
 
-	return ( end != NULL && end->get_is_word() );
+    while(i < len){
+	if(isalpha(s[i]))
+	    return false;	//return false if you find an alpha!
+	i++;
+    }
+    return true;	//either len == 0, or isalpha() failed for every char
 }
 
-//
-// isPrefix(s)
-//   return true if s is a prefix in dictionary
-//
+//private function
+//arguments: char
+//retunrs: corresponding int
+int Dictionary::charToInt(char c)
+{
+    return (c - 'a');
+}
+
+//public prefix func -- is the input string the prefix to a word in the tree?
+//arguments: string
+//returns: bool
+//uses an aux private function that works recursively (TrieNode parameter)
 bool Dictionary::isPrefix(string s)
 {
-	Node	*end = tree_walk(root, s);
-
-	return ( end != NULL );
+    if(root == NULL)		//no prefixes in empty trees
+	return false;
+    else
+	return scaleToEnd(root, s);
 }
 
-//
-// char_to_int
-//   args: a char
-//   rets: the values 0..25 for a..z
-//   note: assumes arg is an alpha char, 
-//         otherwise returns 0
-//
-static int char_to_int(char c)
+//private prefix func -- can we use our tree to scale to the end of the word?
+//arguments: TrieNode, string
+//returns: bool
+//uses recursion to determine if the given string can be found in the tree
+bool Dictionary::scaleToEnd(TrieNode* r, string s)
 {
-	if ( isalpha(c) )
-		return ( tolower(c) - 'a' );
-	return 0;
+    int len = s.length();
+
+    if(noAlpha(s))		//either empty string or we finished scaling
+	return true;
+
+    int i = 0;
+    while(i < len && !isalpha(s[i]))
+	i++;
+
+    char current = tolower(s[i]);
+    string truncated = s.erase(0, i+1);
+
+    if(r->pointToChild(charToInt(current)) != NULL)
+	return scaleToEnd(r->pointToChild(charToInt(current)), truncated);
+    else
+	return false;
+}
+
+//public isWord func -- is the input string a word in the tree?
+//arguments: string
+//returns: bool
+//uses aux private function that works recursively (TrieNode parameter)
+bool Dictionary::isWord(string s)
+{
+    if(root == NULL)		//no words in empty trees
+	return false;
+    else
+	return wordAtEnd(root, s);
+}
+
+//private isWord func -- can we use our tree to scale to the end of the word,
+//and if so is that last node considered a word? (isWord == true) at last node?
+//arguments: TrieNode, string
+//returns: bool
+//uses recursion to scale to the end of the word, and when it reaches there,
+//it evaluates bool based on final node's isWord member
+bool Dictionary::wordAtEnd(TrieNode* r, string s)
+{
+    int len = s.length();
+
+    if(noAlpha(s)){		//either empty string or we finished scaling
+	if(r->get_isWord())
+	    return true;	//truth value stored at node for final char
+	else
+	    return false;
+    }
+
+    int i = 0;
+    while(i < len && !isalpha(s[i]))
+	i++;
+
+    char current = tolower(s[i]);
+    string truncated = s.erase(0, i+1);
+
+    if(r->pointToChild(charToInt(current)) != NULL)
+	return wordAtEnd(r->pointToChild(charToInt(current)), truncated);
+    else
+	return false;
 }
