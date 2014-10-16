@@ -15,6 +15,8 @@ Programs:
 	bbsolver:
 		- solves a boggle board
 		- input:
+		[each word of the dictionary]
+		. (<single period to mark end of dictionary)
 		#rows #cols
                 [each row entered on a separate line with no spaces]
 		- output:
@@ -24,10 +26,23 @@ Programs:
 		- checks to see if a given set of words exists in a given 
 		  boggle board
 		- input:
+		[each word of the dictionary]
+		. (< single period to mark end of dictionary)
 		#rows #cols
 		[each row entered on a separate line with no spaces]
-		[each word in the set to be checked netered on a separate line]
+		[each word in the set to be checked entered on a separate line]
 		- output:
+		listed report in format:
+		[OK (or) NO] [word that was guessed]
+
+	bbscorer:
+		- takes output from bbchecker and determines a score based
+		  on the words guessed and the official boggle rules for points
+		  per word
+		- input:
+		listed report in format:
+		[OK (or) NO] [word that was guessed]
+
 Compile:
 
 bbsolver: g++ -Wall -Wextra -g trienode.cpp Dictionary.cpp BogBoard.cpp BogSolver.cpp solverMain.cpp -o bbsolver
@@ -41,14 +56,13 @@ Header Files:
 		  BogWordList, with its member BogWord, and its member BogLett
 
 	Dictionary.h
-		- Includes: <iostream>, <cctype>
 		- This file contains Dictionary
 		- The code for dictionary was provided by Bruce
 		- Functions defined in Dictionary.cpp
 		- Included only in BogBoard
 
 	BogBoard.h
-		- Includes: Dictionary.h, BogWordList.h, <string>
+		- Includes: Dictionary.h, BogWordList.h
 		- This class contains BogBoard, the class that holds the 
 		  the board for the boggle program--a 2D array of BogLetts
 		- BogBoard is a self-sufficient board that is used to house the
@@ -61,7 +75,6 @@ Header Files:
 		- Functions defined in BogBoard.cpp
 
 	BogScorer.h
-		- Includes: <iostream>
 		- This class contains BogScorer, the class that is responsible 
 		  for scoring the results of a boggle check-report
 		- Scores for a word depend on if the word was marked as OK or 
@@ -75,7 +88,7 @@ Header Files:
 		- Functions defined in BogScorer.cpp
 
 	BogValidator.h
-		- Includes: BogBoard.h, <string>, <cctype>
+		- Includes: BogBoard.h
 		- This class contains BogValidator, the class where a player's 
 		  guesses are checked.
 		- BogValidator allows the user to check if a given word or a 
@@ -86,7 +99,7 @@ Header Files:
 		- Functions defined in BogValidator.cpp
 
 	BogSovler.h
-		- Includes: BogBoard.h, BogWordList.h, <string>, <cctype>
+		- Includes: BogBoard.h, BogWordList.h
 		- This class contains BogSolver, the class that solves a 
 		  Boggle Board, producing a list of all acceptable words
 		- BogSovler confirs with the boggle board and has it return a 
@@ -98,5 +111,7 @@ Header Files:
 
 Other Notes:
 
+      EXPIRED: The website that the game was initially able to be played on 
+      is no longer available
 	Play my boggle game at:
 	www.eecs.tufts.edu/~gcella01/bog15/

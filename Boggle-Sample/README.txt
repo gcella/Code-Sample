@@ -46,7 +46,7 @@ Programs:
 Compile:
 
 bbsolver: g++ -Wall -Wextra -g trienode.cpp Dictionary.cpp BogBoard.cpp BogSolver.cpp solverMain.cpp -o bbsolver
-bbchecker: g++ -Wall -Wextra -g Dictionary.cpp BogBoard.cpp BogValidator.cpp checkerMain.cpp -o bbchecker
+bbchecker: g++ -Wall -Wextra -g trienode.cpp Dictionary.cpp BogBoard.cpp BogValidator.cpp checkerMain.cpp -o bbchecker
 bbscorer: g++ -Wall -Wextra -g BogScorer.cpp scorerMain.cpp -o bbscorer
 
 Header Files:
